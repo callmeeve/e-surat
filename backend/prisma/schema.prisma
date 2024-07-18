@@ -1,0 +1,295 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model users {
+  id                 Int                @id @default(autoincrement()) @db.UnsignedInt
+  name               String             @db.VarChar(255)
+  nip                String?            @db.VarChar(255)
+  jabatan_fungsional String?            @db.VarChar(255)
+  pangkat_gol        String?            @db.VarChar(255)
+  bidang_ilmu        String?            @db.VarChar(255)
+  asal_instansi      String?            @db.VarChar(255)
+  username           String             @unique(map: "users_username_unique") @db.VarChar(255)
+  email              String             @unique(map: "users_email_unique") @db.VarChar(255)
+  unit               Int?               @db.UnsignedInt
+  staff              Int?               @db.UnsignedInt
+  status             String             @db.VarChar(255)
+  role_aktif         String             @default("0") @db.VarChar(255)
+  email_verified_at  DateTime?          @db.Timestamp(0)
+  password           String             @db.VarChar(255)
+  avatar             String             @default("avatar.png") @db.VarChar(255)
+  remember_token     String?            @db.VarChar(100)
+  created_at         DateTime?          @db.Timestamp(0)
+  updated_at         DateTime?          @db.Timestamp(0)
+  surat_disposisis   surat_disposisis[]
+  surat_masuks       surat_masuks[]
+  model_has_roles    model_has_roles[] // Menambahkan hubungan dengan model_has_roles
+}
+
+model model_has_roles {
+  role_id    Int    @db.UnsignedInt
+  model_type String @db.VarChar(255)
+  model_id   Int    @db.UnsignedInt
+  roles      roles  @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "model_has_roles_role_id_foreign")
+  users      users  @relation(fields: [model_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "model_has_roles_model_id_foreign")
+
+  @@id([role_id, model_id, model_type])
+  @@index([model_id, model_type], map: "model_has_roles_model_id_model_type_index")
+}
+
+model roles {
+  id                   Int                    @id @default(autoincrement()) @db.UnsignedInt
+  name                 String                 @db.VarChar(255)
+  guard_name           String                 @db.VarChar(255)
+  created_at           DateTime?              @db.Timestamp(0)
+  updated_at           DateTime?              @db.Timestamp(0)
+  model_has_roles      model_has_roles[]
+  role_has_permissions role_has_permissions[]
+
+  @@unique([name, guard_name], map: "roles_name_guard_name_unique")
+}
+
+model failed_jobs {
+  id         Int      @id @default(autoincrement()) @db.UnsignedInt
+  uuid       String   @unique(map: "failed_jobs_uuid_unique") @db.VarChar(255)
+  connection String   @db.Text
+  queue      String   @db.Text
+  payload    String   @db.LongText
+  exception  String   @db.LongText
+  failed_at  DateTime @default(now()) @db.Timestamp(0)
+}
+
+model iku {
+  id         Int       @id @default(autoincrement()) @db.UnsignedInt
+  tahun      Int
+  no         String    @db.Char(20)
+  sasaran    String    @db.Char(200)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model login_activities {
+  id         Int       @id @default(autoincrement()) @db.UnsignedInt
+  user_id    Int?      @db.UnsignedInt
+  user_agent String    @db.VarChar(255)
+  ip_address String    @db.VarChar(45)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+
+  @@index([user_id], map: "login_activities_user_id_index")
+}
+
+model menus {
+  id         Int       @id @default(autoincrement()) @db.UnsignedInt
+  modul      String    @db.VarChar(255)
+  label      String    @db.VarChar(40)
+  url        String?   @db.VarChar(500)
+  icon       String    @db.VarChar(50)
+  active     String    @db.VarChar(100)
+  can        String    @db.VarChar(100)
+  parent_id  Int       @db.UnsignedInt
+  urut       Int
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model migrations {
+  id        Int    @id @default(autoincrement()) @db.UnsignedInt
+  migration String @db.VarChar(255)
+  batch     Int
+}
+
+model model_has_permissions {
+  permission_id Int         @db.UnsignedInt
+  model_type    String      @db.VarChar(255)
+  model_id      Int         @db.UnsignedInt
+  permissions   permissions @relation(fields: [permission_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "model_has_permissions_permission_id_foreign")
+
+  @@id([permission_id, model_id, model_type])
+  @@index([model_id, model_type], map: "model_has_permissions_model_id_model_type_index")
+}
+
+model oauth_tokens {
+  id            Int       @id @default(autoincrement()) @db.UnsignedInt
+  user_id       Int
+  access_token  String    @db.Text
+  expires_in    Int
+  refresh_token String    @db.Text
+  created_at    DateTime? @db.Timestamp(0)
+  updated_at    DateTime? @db.Timestamp(0)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model password_resets {
+  email      String    @db.VarChar(255)
+  token      String    @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+
+  @@index([email], map: "password_resets_email_index")
+  @@ignore
+}
+
+model pegawais {
+  id                     Int       @id @default(autoincrement()) @db.UnsignedInt
+  nip                    String?   @db.VarChar(19)
+  noid                   String?   @db.VarChar(15)
+  nama                   String    @db.VarChar(100)
+  id_staff               Int?      @db.UnsignedInt
+  id_jurusan             Int?      @db.UnsignedInt
+  id_prodi               Int?      @db.UnsignedInt
+  jenis_kelamin          String?   @db.VarChar(1)
+  agama                  String?   @db.VarChar(100)
+  no_tlp                 String?   @db.VarChar(30)
+  tmp_lahir              String?   @db.VarChar(20)
+  tgl_lahir              DateTime? @db.Date
+  gol_darah              String?   @db.VarChar(5)
+  gelar_dpn              String?   @db.VarChar(10)
+  gelar_blk              String?   @db.VarChar(20)
+  status_kawin           String?   @db.VarChar(2)
+  kelurahan              String?   @db.VarChar(50)
+  kecamatan              String?   @db.VarChar(50)
+  kota                   String?   @db.VarChar(50)
+  provinsi               String?   @db.VarChar(50)
+  askes                  String?   @db.VarChar(30)
+  kode_dosen             String?   @db.VarChar(10)
+  npwp                   String?   @db.VarChar(30)
+  nidn                   String?   @db.VarChar(20)
+  username               String?   @db.VarChar(200)
+  id_dosen_feeder        String?   @db.VarChar(50)
+  id_status_dosen_feeder String?   @db.VarChar(50)
+  id_reg_dosen_feeder    String?   @db.VarChar(50)
+  status_karyawan        String?   @db.VarChar(1)
+  created_at             DateTime? @db.Timestamp(0)
+  updated_at             DateTime? @db.Timestamp(0)
+}
+
+model permissions {
+  id                    Int                     @id @default(autoincrement()) @db.UnsignedInt
+  name                  String                  @db.VarChar(255)
+  guard_name            String                  @db.VarChar(255)
+  created_at            DateTime?               @db.Timestamp(0)
+  updated_at            DateTime?               @db.Timestamp(0)
+  model_has_permissions model_has_permissions[]
+  role_has_permissions  role_has_permissions[]
+
+  @@unique([name, guard_name], map: "permissions_name_guard_name_unique")
+}
+
+model personal_access_tokens {
+  id             Int       @id @default(autoincrement()) @db.UnsignedInt
+  tokenable_type String    @db.VarChar(255)
+  tokenable_id   Int       @db.UnsignedInt
+  name           String    @db.VarChar(255)
+  token          String    @unique(map: "personal_access_tokens_token_unique") @db.VarChar(64)
+  abilities      String?   @db.Text
+  expires_at     DateTime? @db.Timestamp(0)
+  last_used_at   DateTime? @db.Timestamp(0)
+  created_at     DateTime? @db.Timestamp(0)
+  updated_at     DateTime? @db.Timestamp(0)
+
+  @@index([tokenable_type, tokenable_id], map: "personal_access_tokens_tokenable_type_tokenable_id_index")
+}
+
+model role_has_permissions {
+  permission_id Int         @db.UnsignedInt
+  role_id       Int         @db.UnsignedInt
+  permissions   permissions @relation(fields: [permission_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "role_has_permissions_permission_id_foreign")
+  roles         roles       @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "role_has_permissions_role_id_foreign")
+
+  @@id([permission_id, role_id])
+  @@index([role_id], map: "role_has_permissions_role_id_foreign")
+}
+
+model sessions {
+  id            String  @id @db.VarChar(255)
+  user_id       Int?    @db.UnsignedInt
+  ip_address    String? @db.VarChar(45)
+  user_agent    String? @db.Text
+  payload       String  @db.Text
+  last_activity Int
+
+  @@index([last_activity], map: "sessions_last_activity_index")
+  @@index([user_id], map: "sessions_user_id_index")
+}
+
+model staffs {
+  id         Int       @id @default(autoincrement()) @db.UnsignedInt
+  nama       String    @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model surat_disposisis {
+  id                Int                     @id @default(autoincrement()) @db.UnsignedInt
+  surat_masuk_id    Int                     @db.UnsignedInt
+  user_id           Int?                    @db.UnsignedInt
+  induk             Int
+  waktu             DateTime                @db.DateTime(0)
+  disposisi_singkat String?                 @db.Char(100)
+  disposisi_narasi  String?                 @db.Text
+  tujuan_disposisi  String?                 @db.VarChar(255)
+  jenis             surat_disposisis_jenis  @default(turun)
+  status            surat_disposisis_status @default(proses)
+  created_at        DateTime?               @db.Timestamp(0)
+  updated_at        DateTime?               @db.Timestamp(0)
+  surat_masuks      surat_masuks            @relation(fields: [surat_masuk_id], references: [id], onDelete: Cascade, map: "surat_disposisis_ibfk_1")
+  users             users?                  @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "surat_disposisis_ibfk_2")
+
+  @@index([surat_masuk_id], map: "surat_masuk_id")
+  @@index([user_id], map: "user_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model surat_masuks {
+  id                  Int                @id @default(autoincrement()) @db.UnsignedInt
+  induk               Int
+  nomor               String             @db.Char(100)
+  tanggal_surat       DateTime           @db.Date
+  tanggal_diterima    DateTime           @db.DateTime(0)
+  pengirim            String             @db.Char(100)
+  diterima_dari       String?            @db.Char(100)
+  perihal             String             @db.Char(200)
+  sifat               surat_masuks_sifat @default(Biasa)
+  disposisi           String?            @db.VarChar(255)
+  status              Int?               @db.UnsignedInt
+  user_id             Int                @db.UnsignedInt
+  catatan_sekretariat String?            @db.Char(200)
+  file                String?            @db.Char(200)
+  created_at          DateTime?          @db.Timestamp(0)
+  updated_at          DateTime?          @db.Timestamp(0)
+  surat_disposisis    surat_disposisis[]
+  users               users              @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "surat_masuks_ibfk_1")
+
+  @@index([user_id], map: "user_id")
+}
+
+model units {
+  id         Int       @id @default(autoincrement()) @db.UnsignedInt
+  nama       String    @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+enum surat_disposisis_jenis {
+  turun
+  kembali
+}
+
+enum surat_masuks_sifat {
+  Biasa
+  Segera
+  Penting
+  Penting_Segera
+  Rahasia
+}
+
+enum surat_disposisis_status {
+  proses
+  selesai
+}
