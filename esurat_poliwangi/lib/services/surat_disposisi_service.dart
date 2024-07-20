@@ -32,6 +32,10 @@ class SuratDisposisiService with ChangeNotifier {
     });
   }
 
+  void stopPolling() {
+    _pollingTimer?.cancel();
+  }
+
   // Get semua surat disposisi yang dimiliki oleh user
   Future<void> getSuratDisposisi() async {
     final token = await this.token;
@@ -147,7 +151,7 @@ class SuratDisposisiService with ChangeNotifier {
 
   @override
   void dispose() {
-    _pollingTimer?.cancel();
+    stopPolling();
     _suratDisposisiController.close();
     super.dispose();
   }

@@ -55,6 +55,39 @@ class AuthService with ChangeNotifier {
     }
   }
 
+  // Get user data that is logged in
+  Future<Map<String, dynamic>> getUserData() async {
+    final token = await this.token;
+
+    if (token == null || JwtDecoder.isExpired(token)) {
+      throw Exception('Token tidak valid');
+    }
+
+    final decodedToken = JwtDecoder.decode(token);
+    final userId = decodedToken['userId'];
+
+    if (userId == null) {
+      throw Exception('User ID tidak ditemukan');
+    }
+
+    final response = await http.get(
+      Uri.parse('http://192.168.170.178:3000/api/users/me'),
+      headers: <String, String>{
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      final Map<String, dynamic> userData = responseData['user'];
+      final List<dynamic> roles = responseData['roles'];
+      userData['roles'] = roles;
+      return userData;
+    } else {
+      throw Exception('Failed to get user data');
+    }
+  }
+
   Future<void> logout() async {
     await storage.delete(key: 'token');
     await storage.delete(key: 'roles');

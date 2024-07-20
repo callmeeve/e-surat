@@ -4,6 +4,6 @@ const { getAllUsers, me } = require('../controllers/userController');
 const { authenticate, authorize } = require('../middleware/authMiddleware');
 
 router.get('/', authenticate, authorize(["Direktur", "Wadir"]), getAllUsers);
-router.get('/me', authenticate, me);
+router.get('/me', authenticate, authorize(["Direktur", "Wadir", "Pegawai"]), me);
 
 module.exports = router;

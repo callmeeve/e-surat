@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:esurat_poliwangi/services/surat_disposisi_service.dart';
-import 'package:esurat_poliwangi/screens/create_disposisi_screen.dart';
 import 'package:esurat_poliwangi/screens/detail_disposisi_screen.dart';
 
-class WadirHomeScreen extends StatefulWidget {
-  const WadirHomeScreen({super.key});
+class PegawaiHomeScreen extends StatefulWidget {
+  const PegawaiHomeScreen({super.key});
 
   @override
-  State<WadirHomeScreen> createState() => _WadirHomeScreenState();
+  State<PegawaiHomeScreen> createState() => _PegawaiHomeScreenState();
 }
 
-class _WadirHomeScreenState extends State<WadirHomeScreen> {
+class _PegawaiHomeScreenState extends State<PegawaiHomeScreen> {
   @override
   void initState() {
     super.initState();
@@ -100,16 +99,6 @@ class _WadirHomeScreenState extends State<WadirHomeScreen> {
             );
           }
         },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => const CreateDisposisiScreen(),
-            ),
-          );
-        },
-        child: const Icon(Icons.add),
       ),
     );
   }
