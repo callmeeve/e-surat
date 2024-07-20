@@ -42,8 +42,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      Image.network(
-                        'https://v2.poliwangi.ac.id/wp-content/uploads/2021/02/logo-poliwangi.png',
+                      Image.asset(
+                        'assets/images/logo.png',
                         width: 100.0,
                         height: 100.0,
                         fit: BoxFit.contain,

@@ -3,8 +3,22 @@ const prisma = require("../config/prisma");
 
 // Get Surat Masuk Report
 const getAllSuratMasuk = async (req, res) => {
+  const userId = req.user.userId;
+
+  if (!userId) {
+    return res.status(401).json({ error: "User tidak ditemukan" });
+  }
+
   try {
-    const suratMasuk = await prisma.surat_masuks.findMany();
+    const suratMasuk = await prisma.surat_masuks.findMany({
+      where: {
+        surat_disposisis: {
+          some: {
+            user_id: userId,
+          },
+        },
+      },
+    });
     res.json(suratMasuk);
   } catch (error) {
     res.status(500).json({ error: "Gagal mengambil data surat masuk" });
@@ -47,17 +61,17 @@ const createSuratMasuk = async (req, res) => {
 
   // Status surat masuk
   const statusMap = {
-    1: 'proses',
-    2: 'direktur',
-    3: 'wadir',
-    4: 'pegawai',
-    5: 'arsip',
+    1: "proses",
+    2: "direktur",
+    3: "wadir",
+    4: "pegawai",
+    5: "arsip",
   };
 
   const suratStatus = statusMap[status];
 
   if (!suratStatus) {
-    return res.status(400).json({ error: 'Status surat tidak valid' });
+    return res.status(400).json({ error: "Status surat tidak valid" });
   }
 
   try {

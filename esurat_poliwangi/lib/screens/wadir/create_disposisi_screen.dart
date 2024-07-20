@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:esurat_poliwangi/widgets/upload_camera.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:esurat_poliwangi/services/surat_disposisi_service.dart';
@@ -66,6 +67,7 @@ class _CreateDisposisiScreenState extends State<CreateDisposisiScreen> {
     final suratDisposisiService = Provider.of<SuratDisposisiService>(context);
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('Create Disposisi'),
       ),
@@ -193,6 +195,8 @@ class _CreateDisposisiScreenState extends State<CreateDisposisiScreen> {
                       return null;
                     },
                   ),
+                  const SizedBox(height: 16),
+                  const UploadCamera(),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () async {

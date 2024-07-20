@@ -1,7 +1,8 @@
-import 'package:esurat_poliwangi/screens/wadir/create_disposisi_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:esurat_poliwangi/services/surat_disposisi_service.dart';
+import 'package:esurat_poliwangi/screens/wadir/create_disposisi_screen.dart';
+import 'package:esurat_poliwangi/screens/wadir/detail_disposisi_screen.dart';
 
 class WadirHomeScreen extends StatefulWidget {
   const WadirHomeScreen({super.key});
@@ -79,6 +80,13 @@ class _WadirHomeScreenState extends State<WadirHomeScreen> {
                         Text(suratDisposisi['disposisi_singkat'] ?? 'No Title'),
                     subtitle: Text(suratMasuk['nomor'] ?? 'No Number'),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => DetailDisposisiScreen(
+                          suratDisposisi: suratDisposisi,
+                        ),
+                      ),
+                    ),
                   );
                 },
               ),
