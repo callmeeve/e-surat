@@ -1,6 +1,10 @@
+import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class DetailDisposisiScreen extends StatelessWidget {
   final Map<String, dynamic> suratDisposisi;
@@ -39,7 +43,7 @@ class DetailDisposisiScreen extends StatelessWidget {
             _buildDetailCard('Catatan Sekretariat:',
                 suratMasuk['catatan_sekretariat'] ?? 'N/A'),
             _buildDetailCard('File:', suratMasuk['file'] ?? 'N/A', onTap: () {
-              _viewFile(context, suratMasuk['file']);
+              downloadFile(context, suratMasuk['file']);
             }),
           ],
         ),
@@ -47,36 +51,59 @@ class DetailDisposisiScreen extends StatelessWidget {
     );
   }
 
-  Future<void> _viewFile(BuildContext context, String? fileUrl) async {
-    if (fileUrl == null || fileUrl.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No file attached'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
+  Future<void> downloadFile(BuildContext context, String fileUrl) async {
+    // Request storage permissions
+    var status = await Permission.storage.status;
+    if (!status.isGranted) {
+      await Permission.storage.request();
     }
 
-    // Construct the full URL for the file
-    final Uri url = Uri.parse(fileUrl);
+    String baseUrl = 'http://192.168.170.178:3000/uploads/';
+    final url = baseUrl + fileUrl;
 
     try {
-      if (await canLaunchUrl(url)) {
-        await launchUrl(url, mode: LaunchMode.externalApplication);
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        // Use path_provider to get the path to the downloads directory
+        Directory? directory = await getExternalStorageDirectory();
+        String newPath = "";
+        List<String> paths = directory!.path.split("/");
+        for (int x = 1; x < paths.length; x++) {
+          String folder = paths[x];
+          if (folder != "Android") {
+            newPath += "/$folder";
+          } else {
+            break;
+          }
+        }
+        newPath = "$newPath/Download";
+        directory = Directory(newPath);
+
+        if (!await directory.exists()) {
+          await directory.create(recursive: true);
+        }
+
+        final file = File('${directory.path}/$fileUrl');
+        await file.writeAsBytes(response.bodyBytes);
+
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Opening file...'),
+          SnackBar(
+            content: Text('File berhasil diunduh ke folder: $file'),
             backgroundColor: Colors.green,
           ),
         );
       } else {
-        throw 'Could not open the file';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Gagal mengunduh file: ${response.statusCode}'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error opening file: $e'),
+          content: Text('Error: $e'),
           backgroundColor: Colors.red,
         ),
       );

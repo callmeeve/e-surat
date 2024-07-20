@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const { config } = require("dotenv");
+const path = require("path");
 
 config();
 
@@ -25,6 +26,10 @@ app.use("/api/auth", authRoutes);
 app.use("/api/surat-masuk", suratMasukRoutes);
 app.use("/api/surat-disposisi", suratDisposisiRoutes);
 app.use("/api/users", userRoutes);
+
+// Serve static files from the 'public' directory
+app.use(express.static(path.join(__dirname, "public")));
+
 
 app.listen(process.env.PORT, () => {
   console.log(`Server is running on port ${process.env.PORT}`);

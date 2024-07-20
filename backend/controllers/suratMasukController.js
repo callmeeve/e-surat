@@ -19,7 +19,16 @@ const getAllSuratMasuk = async (req, res) => {
         },
       },
     });
-    res.json(suratMasuk);
+
+     // Assuming files are stored in the 'public/uploads' directory
+     const baseUrl = `${req.protocol}://${req.get('host')}/uploads/`;
+     const suratMasukWithFullPath = suratMasuk.map(surat => ({
+       ...surat,
+       filePath: baseUrl + surat.filePath, // Adjust 'filePath' based on your column name
+     }));
+ 
+
+    res.json(suratMasukWithFullPath);
   } catch (error) {
     res.status(500).json({ error: "Gagal mengambil data surat masuk" });
   }
@@ -43,6 +52,12 @@ const getSuratMasukById = async (req, res) => {
 
 // Menerima data surat masuk
 const createSuratMasuk = async (req, res) => {
+  const userId = req.user.userId;
+
+  if (!userId) {
+    return res.status(401).json({ error: "User tidak ditemukan" });
+  }
+
   const {
     induk,
     nomor,
@@ -54,10 +69,11 @@ const createSuratMasuk = async (req, res) => {
     sifat,
     disposisi,
     status,
-    user_id,
     catatan_sekretariat,
-    file,
   } = req.body;
+
+  // File surat masuk
+  const filePath = req.file ? req.file.filename : null;
 
   // Status surat masuk
   const statusMap = {
@@ -77,7 +93,7 @@ const createSuratMasuk = async (req, res) => {
   try {
     const suratMasuk = await prisma.surat_masuks.create({
       data: {
-        induk,
+        induk: parseInt(induk),
         nomor,
         tanggal_surat: new Date(tanggal_surat),
         tanggal_diterima: new Date(tanggal_diterima),
@@ -86,14 +102,16 @@ const createSuratMasuk = async (req, res) => {
         perihal,
         sifat,
         disposisi,
-        status: suratStatus,
-        user_id,
+        status: parseInt(status),
+        user_id: userId,
         catatan_sekretariat,
-        file,
+        file: filePath,
       },
     });
+
     res.status(201).json(suratMasuk);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "Failed to create surat masuk" });
   }
 };
